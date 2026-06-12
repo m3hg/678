@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Puter Studio X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=JetBrains+Mono:ital,wght@0,300..700;1,300..500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PUTER STUDIO X — design system
+   Industrial-editorial dark. Warm charcoal, copper accent.
+   ============================================================ */
+:root{
+  --bg-0:#0c0b09;        /* app shell */
+  --bg-1:#121110;        /* panels */
+  --bg-2:#191816;        /* raised */
+  --bg-3:#221f1c;        /* hover */
+  --glass:rgba(25,24,22,.72);
+  --line:#2a2723;
+  --line-soft:#1e1c19;
+  --txt-0:#ece7df;
+  --txt-1:#a89f92;
+  --txt-2:#6f675c;
+  --acc:#e09a3e;         /* copper */
+  --acc-soft:rgba(224,154,62,.14);
+  --acc-line:rgba(224,154,62,.35);
+  --ok:#7fb069;
+  --err:#d9644a;
+  --info:#6ea8c9;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --disp:'Bricolage Grotesque','JetBrains Mono',sans-serif;
+  --r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg-0);color:var(--txt-0);
+  font-family:var(--disp);font-size:13px;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{ /* grain */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#2e2a25;border-radius:6px;border:2px solid var(--bg-1)}
+::-webkit-scrollbar-track{background:transparent}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,textarea,select{font-family:inherit;color:var(--txt-0);background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--acc-line)}
+kbd{font-family:var(--mono);font-size:10px;background:var(--bg-3);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:var(--txt-1)}
+
+/* ---------- shell grid ---------- */
+#app{display:grid;height:100vh;
+  grid-template-rows:40px 1fr 24px;
+  grid-template-columns:46px auto 1fr auto;
+  grid-template-areas:
+    "title title title title"
+    "rail  side  main  ai"
+    "status status status status";
+}
+/* ---------- title bar ---------- */
+#titlebar{grid-area:title;display:flex;align-items:center;gap:14px;padding:0 14px;
+  background:linear-gradient(180deg,#161412,#100f0d);border-bottom:1px solid var(--line-soft)}
+#brand{display:flex;align-items:baseline;gap:8px;user-select:none}
+#brand b{font-weight:800;font-size:14px;letter-spacing:.5px}
+#brand b i{color:var(--acc);font-style:normal}
+#brand span{font-family:var(--mono);font-size:10px;color:var(--txt-2);letter-spacing:2px;text-transform:uppercase}
+#tb-mid{flex:1;display:flex;justify-content:center}
+#cmdk-btn{display:flex;align-items:center;gap:10px;padding:5px 14px;min-width:340px;justify-content:space-between;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:7px;color:var(--txt-2);font-size:12px;transition:.15s}
+#cmdk-btn:hover{border-color:var(--acc-line);color:var(--txt-1)}
+#auth-zone{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px}
+#auth-zone .dot{width:7px;height:7px;border-radius:50%;background:var(--err)}
+#auth-zone .dot.on{background:var(--ok);box-shadow:0 0 8px rgba(127,176,105,.6)}
+.btn{padding:5px 12px;border-radius:7px;border:1px solid var(--line);background:var(--bg-2);font-size:12px;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--acc-line);background:var(--bg-3)}
+.btn.primary{background:var(--acc);color:#181410;font-weight:700;border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent;color:var(--txt-1)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- activity rail ---------- */
+#rail{grid-area:rail;background:var(--bg-1);border-right:1px solid var(--line-soft);
+  display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px}
+.rail-btn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--txt-2);transition:.15s;position:relative}
+.rail-btn:hover{color:var(--txt-0);background:var(--bg-3)}
+.rail-btn.active{color:var(--acc);background:var(--acc-soft)}
+.rail-btn.active::before{content:"";position:absolute;left:-6px;top:8px;bottom:8px;width:2px;background:var(--acc);border-radius:2px}
+.rail-btn svg{width:18px;height:18px}
+#rail .spacer{flex:1}
+
+/* ---------- sidebar ---------- */
+#sidebar{grid-area:side;width:248px;background:var(--bg-1);border-right:1px solid var(--line-soft);
+  display:flex;flex-direction:column;overflow:hidden}
+#sidebar.hidden{display:none}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 9px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--txt-2)}
+.panel-head .acts{display:flex;gap:4px}
+.icon-btn{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:var(--txt-2);transition:.12s}
+.icon-btn:hover{color:var(--txt-0);background:var(--bg-3)}
+.icon-btn svg{width:13px;height:13px}
+#file-tree{flex:1;overflow-y:auto;padding:2px 6px 14px}
+.tree-item{display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:6px;cursor:pointer;color:var(--txt-1);font-size:12.5px;user-select:none;transition:.1s}
+.tree-item:hover{background:var(--bg-3);color:var(--txt-0)}
+.tree-item.active{background:var(--acc-soft);color:var(--acc)}
+.tree-item .ext{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--txt-2);opacity:.7}
+.tree-item.dirty::after{content:"●";color:var(--acc);font-size:8px;margin-left:4px}
+.tree-dir{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-2);padding:9px 8px 3px}
+#search-pane{flex:1;display:none;flex-direction:column;padding:0 10px;overflow:hidden}
+#search-pane input{padding:7px 10px;font-size:12px;margin-bottom:8px}
+#search-results{flex:1;overflow-y:auto;font-family:var(--mono);font-size:11px}
+.sr{padding:6px 8px;border-radius:6px;cursor:pointer;border-left:2px solid transparent;margin-bottom:2px}
+.sr:hover{background:var(--bg-3);border-left-color:var(--acc)}
+.sr .p{color:var(--acc);font-size:10px}
+.sr .l{color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#agents-pane{flex:1;display:none;flex-direction:column;overflow-y:auto;padding:0 10px 14px}
+.agent-card{border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:8px;cursor:pointer;transition:.15s;background:var(--bg-2)}
+.agent-card:hover{border-color:var(--acc-line);transform:translateY(-1px)}
+.agent-card.active{border-color:var(--acc);background:var(--acc-soft)}
+.agent-card h4{font-size:12.5px;display:flex;align-items:center;gap:7px}
+.agent-card h4 .em{font-size:14px}
+.agent-card p{font-size:11px;color:var(--txt-1);margin-top:4px;line-height:1.45}
+.agent-card .tag{font-family:var(--mono);font-size:9px;color:var(--acc);letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:inline-block}
+
+/* ---------- main / editor ---------- */
+#main{grid-area:main;display:flex;flex-direction:column;min-width:0;background:var(--bg-0)}
+#tabs{display:flex;align-items:flex-end;height:36px;background:var(--bg-1);border-bottom:1px solid var(--line-soft);overflow-x:auto;overflow-y:hidden}
+.tab{display:flex;align-items:center;gap:8px;padding:0 12px;height:36px;font-size:12px;color:var(--txt-2);cursor:pointer;border-right:1px solid var(--line-soft);white-space:nowrap;transition:.12s;font-family:var(--mono);font-size:11px}
+.tab:hover{color:var(--txt-1);background:var(--bg-2)}
+.tab.active{color:var(--txt-0);background:var(--bg-0);box-shadow:inset 0 2px 0 var(--acc)}
+.tab .x{opacity:0;width:15px;height:15px;border-radius:4px;display:grid;place-items:center;font-size:12px}
+.tab:hover .x{opacity:.7}.tab .x:hover{background:var(--bg-3);opacity:1}
+.tab .d{color:var(--acc);font-size:9px}
+#editor-wrap{flex:1;position:relative;min-height:0}
+#editor{position:absolute;inset:0}
+#welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--txt-2);background:
+  radial-gradient(600px 400px at 50% 35%,rgba(224,154,62,.05),transparent 70%)}
+#welcome h1{font-size:42px;font-weight:300;letter-spacing:-1px;color:var(--txt-1)}
+#welcome h1 b{font-weight:800;color:var(--txt-0)}
+#welcome h1 i{color:var(--acc);font-style:normal}
+#welcome .hints{display:flex;flex-direction:column;gap:8px;margin-top:18px;font-size:12.5px}
+#welcome .hints div{display:flex;gap:12px;align-items:center;justify-content:space-between;min-width:300px}
+/* bottom panel */
+#bottom{height:0;border-top:1px solid var(--line-soft);background:var(--bg-1);display:flex;flex-direction:column;transition:height .18s;overflow:hidden}
+#bottom.open{height:170px}
+#bottom .panel-head{padding:8px 14px 6px}
+#log-body{flex:1;overflow-y:auto;font-family:var(--mono);font-size:11px;padding:0 14px 10px;line-height:1.7}
+#log-body .t{color:var(--txt-2)}
+#log-body .ok{color:var(--ok)} #log-body .err{color:var(--err)} #log-body .info{color:var(--info)} #log-body .tool{color:var(--acc)}
+
+/* ---------- AI panel ---------- */
+#ai{grid-area:ai;width:390px;background:var(--bg-1);border-left:1px solid var(--line-soft);display:flex;flex-direction:column;overflow:hidden}
+#ai.hidden{display:none}
+#ai-head{padding:10px 12px;border-bottom:1px solid var(--line-soft);display:flex;flex-direction:column;gap:8px}
+#ai-head .row{display:flex;gap:6px;align-items:center}
+#chat-tabs{display:flex;gap:5px;overflow-x:auto;flex:1}
+.chat-tab{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--line);color:var(--txt-1);white-space:nowrap;cursor:pointer}
+.chat-tab.active{border-color:var(--acc-line);color:var(--acc);background:var(--acc-soft)}
+#model-row{display:flex;gap:6px}
+#model-select{flex:1;padding:6px 8px;font-family:var(--mono);font-size:11px;border-radius:7px;min-width:0}
+#fav-btn.faved{color:var(--acc)}
+#agent-strip{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--txt-2)}
+#agent-chip{color:var(--acc);background:var(--acc-soft);border:1px solid var(--acc-line);border-radius:6px;padding:3px 8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+#tools-toggle{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.switch{width:28px;height:15px;border-radius:9px;background:var(--bg-3);border:1px solid var(--line);position:relative;transition:.15s}
+.switch::after{content:"";position:absolute;top:1px;left:1px;width:11px;height:11px;border-radius:50%;background:var(--txt-2);transition:.15s}
+.switch.on{background:var(--acc-soft);border-color:var(--acc-line)}
+.switch.on::after{left:14px;background:var(--acc)}
+#pins{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px 0}
+#pins:empty{display:none}
+.pin{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;background:var(--bg-2);border:1px solid var(--line);color:var(--txt-1);display:flex;gap:6px;align-items:center}
+.pin b{cursor:pointer;color:var(--txt-2)} .pin b:hover{color:var(--err)}
+#msgs{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:100%;animation:rise .25s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg .who{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt-2);margin-bottom:5px;display:flex;gap:8px;align-items:center}
+.msg.user .who{color:var(--txt-1)}
+.msg.ai .who{color:var(--acc)}
+.msg .body{font-size:12.5px;line-height:1.65;color:var(--txt-0);white-space:pre-wrap;word-break:break-word}
+.msg.user .body{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.msg .body code{font-family:var(--mono);font-size:11px;background:var(--bg-2);padding:1px 5px;border-radius:4px;color:#e8c98f}
+.msg .body pre{background:#0a0908;border:1px solid var(--line);border-radius:9px;padding:10px 12px;overflow-x:auto;margin:8px 0;font-family:var(--mono);font-size:11px;line-height:1.6;white-space:pre}
+.tool-line{font-family:var(--mono);font-size:10.5px;color:var(--acc);background:var(--acc-soft);border:1px dashed var(--acc-line);border-radius:7px;padding:6px 10px;margin:4px 0}
+.msg .body img{max-width:100%;border-radius:8px;border:1px solid var(--line);margin-top:6px}
+#thinking{display:none;padding:0 14px 8px;font-family:var(--mono);font-size:10px;color:var(--acc);letter-spacing:1px}
+#thinking.on{display:flex;gap:8px;align-items:center}
+#thinking .pulse{width:7px;height:7px;border-radius:50%;background:var(--acc);animation:pls 1s infinite}
+@keyframes pls{50%{opacity:.25;transform:scale(.7)}}
+#composer{padding:10px 12px 12px;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;gap:8px}
+#composer textarea{resize:none;min-height:64px;max-height:160px;padding:9px 11px;font-size:12.5px;line-height:1.5;border-radius:10px}
+#composer .row{display:flex;gap:8px;align-items:center}
+#composer .hint{font-family:var(--mono);font-size:9.5px;color:var(--txt-2);flex:1}
+
+/* ---------- status bar ---------- */
+#status{grid-area:status;background:var(--bg-1);border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:18px;padding:0 14px;font-family:var(--mono);font-size:10px;color:var(--txt-2)}
+#status .sep{flex:1}
+#status .item{display:flex;gap:6px;align-items:center;cursor:default}
+#status .item.click{cursor:pointer}
+#status .item.click:hover{color:var(--txt-0)}
+#pending-badge{color:var(--acc);display:none}
+#pending-badge.on{display:flex;cursor:pointer}
+
+/* ---------- command palette ---------- */
+#palette{position:fixed;inset:0;background:rgba(8,7,6,.6);backdrop-filter:blur(4px);display:none;z-index:1000;padding-top:12vh;justify-content:center}
+#palette.open{display:flex}
+#palette .box{width:560px;max-height:420px;background:var(--glass);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:pop .15s ease}
+@keyframes pop{from{opacity:0;transform:scale(.97) translateY(-8px)}to{opacity:1;transform:none}}
+#palette input{border:none;background:transparent;padding:15px 18px;font-size:15px;border-bottom:1px solid var(--line-soft);border-radius:0}
+#palette-list{overflow-y:auto;padding:6px}
+.pal-item{display:flex;align-items:center;gap:12px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--txt-1)}
+.pal-item .k{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--txt-2)}
+.pal-item.sel{background:var(--acc-soft);color:var(--txt-0)}
+.pal-item .cat{font-family:var(--mono);font-size:9px;color:var(--acc);letter-spacing:1px;text-transform:uppercase;min-width:52px}
+
+/* ---------- diff review modal ---------- */
+#review{position:fixed;inset:0;background:rgba(8,7,6,.7);backdrop-filter:blur(5px);display:none;z-index:900;align-items:center;justify-content:center}
+#review.open{display:flex}
+#review .box{width:min(1100px,92vw);height:min(700px,86vh);background:var(--bg-1);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+#review-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+#review-head .path{font-family:var(--mono);font-size:12px;color:var(--acc)}
+#review-head .nav{font-family:var(--mono);font-size:10px;color:var(--txt-2)}
+#review-head .sp{flex:1}
+#diff-editor{flex:1}
+.toast-zone{position:fixed;bottom:38px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:1200}
+.toast{background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;padding:10px 14px;font-size:12px;max-width:320px;animation:rise .25s ease;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.toast.err{border-left-color:var(--err)} .toast.ok{border-left-color:var(--ok)}
+#nopt-banner{display:none;background:linear-gradient(90deg,rgba(217,100,74,.18),transparent);border-bottom:1px solid rgba(217,100,74,.4);padding:7px 14px;font-size:11.5px;font-family:var(--mono);color:#e8a08e}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TITLE BAR -->
+  <div id="titlebar">
+    <div id="brand"><b>PUTER<i>·</i>STUDIO<i>X</i></b><span>ai native ide</span></div>
+    <div id="tb-mid">
+      <button id="cmdk-btn"><span>Search files, run commands…</span><kbd>Ctrl K</kbd></button>
+    </div>
+    <div id="auth-zone">
+      <span class="dot" id="auth-dot"></span>
+      <span id="auth-name">guest</span>
+      <button class="btn" id="auth-btn">Sign in to Puter</button>
+      <button class="btn ghost" id="sync-btn" title="Save workspace to Puter cloud (KV)">☁ Sync</button>
+    </div>
+  </div>
+
+  <!-- ACTIVITY RAIL -->
+  <div id="rail">
+    <button class="rail-btn active" data-view="explorer" title="Explorer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l3-4h5l2 3h8v14H3z"/></svg></button>
+    <button class="rail-btn" data-view="search" title="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.5-4.5"/></svg></button>
+    <button class="rail-btn" data-view="agents" title="Agents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="7" width="14" height="11" rx="3"/><circle cx="10" cy="12.5" r="1.2" fill="currentColor"/><circle cx="14" cy="12.5" r="1.2" fill="currentColor"/><path d="M12 7V4M8 4h8"/></svg></button>
+    <div class="spacer"></div>
+    <button class="rail-btn" id="toggle-bottom" title="Toggle logs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 14h18"/></svg></button>
+    <button class="rail-btn" id="toggle-ai" title="Toggle AI panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.2 5.6L20 11l-5.8 2.4L12 19l-2.2-5.6L4 11l5.8-2.4z"/></svg></button>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="explorer-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="panel-head">Explorer
+        <div class="acts">
+          <button class="icon-btn" id="new-file-btn" title="New file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+      </div>
+      <div id="file-tree"></div>
+    </div>
+    <div id="search-pane">
+      <div class="panel-head">Search workspace</div>
+      <input id="search-input" placeholder="Find in files…" />
+      <div id="search-results"></div>
+    </div>
+    <div id="agents-pane">
+      <div class="panel-head">Agent roster</div>
+      <div id="agent-list"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="nopt-banner">⚠ Puter SDK could not load. Download this file and open it in a browser tab (not a sandboxed preview) for full AI + cloud features.</div>
+    <div id="tabs"></div>
+    <div id="editor-wrap">
+      <div id="welcome">
+        <h1><b>Puter</b> Studio <i>X</i></h1>
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--txt-2)">KEYLESS · SERVERLESS · MULTI-MODEL · AGENTIC</div>
+        <div class="hints">
+          <div><span>Command palette</span><kbd>Ctrl K</kbd></div>
+          <div><span>Ask the agent to edit code</span><kbd>tools on</kbd></div>
+          <div><span>Pin a file into AI context</span><kbd>Ctrl P</kbd></div>
+          <div><span>Review staged AI edits</span><kbd>status bar</kbd></div>
+        </div>
+      </div>
+      <div id="editor"></div>
+    </div>
+    <div id="bottom">
+      <div class="panel-head">Logs / Tasks
+        <div class="acts"><button class="icon-btn" id="clear-logs" title="Clear">✕</button></div>
+      </div>
+      <div id="log-body"></div>
+    </div>
+  </div>
+
+  <!-- AI PANEL -->
+  <div id="ai">
+    <div id="ai-head">
+      <div class="row">
+        <div id="chat-tabs"></div>
+        <button class="icon-btn" id="new-chat-btn" title="New chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div id="model-row">
+        <select id="model-select"></select>
+        <button class="icon-btn" id="fav-btn" title="Favorite model">★</button>
+        <button class="icon-btn" id="refresh-models" title="Re-discover models">⟳</button>
+      </div>
+      <div id="agent-strip">
+        <span>agent</span><span id="agent-chip">pair programmer</span>
+        <label id="tools-toggle"><span>tools</span><span class="switch on" id="tools-switch"></span></label>
+      </div>
+    </div>
+    <div id="pins"></div>
+    <div id="msgs"></div>
+    <div id="thinking"><span class="pulse"></span><span id="thinking-text">reasoning…</span></div>
+    <div id="composer">
+      <textarea id="prompt" placeholder="Ask, or instruct the agent — it can read & edit your files…"></textarea>
+      <div class="row">
+        <span class="hint">↵ send · shift+↵ newline · /img to generate an image</span>
+        <button class="btn ghost" id="pin-active" title="Pin active file to context">📌 Pin file</button>
+        <button class="btn primary" id="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="status">
+    <span class="item" id="st-branch">⌥ workspace: <span id="ws-name">demo-project</span></span>
+    <span class="item" id="st-file">—</span>
+    <span class="sep"></span>
+    <span class="item" id="pending-badge">◈ <span id="pending-count">0</span> staged AI edits — review</span>
+    <span class="item" id="st-model">model: —</span>
+    <span class="item" id="st-usage"></span>
+    <span class="item">puter studio x · v1.0</span>
+  </div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div id="palette"><div class="box">
+  <input id="palette-input" placeholder="Type a command or file name…" />
+  <div id="palette-list"></div>
+</div></div>
+
+<!-- DIFF REVIEW -->
+<div id="review"><div class="box">
+  <div id="review-head">
+    <span style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--txt-2)">REVIEW AI EDIT</span>
+    <span class="path" id="review-path"></span>
+    <span class="nav" id="review-nav"></span>
+    <span class="sp"></span>
+    <button class="btn" id="review-reject">Reject</button>
+    <button class="btn primary" id="review-apply">Apply change</button>
+    <button class="btn ghost" id="review-close">Close</button>
+  </div>
+  <div id="diff-editor"></div>
+</div></div>
+
+<div class="toast-zone" id="toasts"></div>
+
+<script src="https://js.puter.com/v2/"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════
+   PUTER STUDIO X — application kernel
+   Layers: Store (state+events) → Services (Puter, FS, Agents)
+           → UI controllers. Single-file build of the core.
+   ════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const el = (t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const esc = s => String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+
+/* ─────────────────────────── STORE ─────────────────────────── */
+const Store = {
+  _l:{},
+  on(ev,fn){(this._l[ev]=this._l[ev]||[]).push(fn)},
+  emit(ev,d){(this._l[ev]||[]).forEach(f=>f(d))},
+  state:{
+    puterOk:false, user:null,
+    models:[], favorites:new Set(), model:"gpt-5-nano",
+    files:new Map(),            // path -> {content}
+    tabs:[], active:null, dirty:new Set(),
+    chats:[], chatId:null,
+    pins:new Set(),
+    pending:[],                 // staged edits {id,path,oldContent,newContent,note}
+    toolsOn:true, agent:"pair", busy:false,
+  }
+};
+const S = Store.state;
+
+/* ─────────────────────────── LOGGER ─────────────────────────── */
+const Log = {
+  add(kind,msg){
+    const t=new Date().toLocaleTimeString();
+    const row=el("div",null,`<span class="t">${t}</span> <span class="${kind}">[${kind.toUpperCase()}]</span> ${esc(msg)}`);
+    $("#log-body").appendChild(row); $("#log-body").scrollTop=1e9;
+  }
+};
+function toast(msg,kind=""){
+  const t=el("div","toast "+kind,esc(msg));
+  $("#toasts").appendChild(t);
+  setTimeout(()=>{t.style.opacity="0";t.style.transition=".3s";setTimeout(()=>t.remove(),350)},3400);
+}
+
+/* ─────────────────────── WORKSPACE FS ─────────────────────── */
+const FS = {
+  langOf(p){
+    const x=p.split(".").pop().toLowerCase();
+    return {js:"javascript",jsx:"javascript",ts:"typescript",tsx:"typescript",py:"python",html:"html",
+      css:"css",json:"json",md:"markdown",rs:"rust",go:"go",java:"java",sql:"sql",sh:"shell",yml:"yaml",yaml:"yaml",txt:"plaintext"}[x]||"plaintext";
+  },
+  list(){return [...S.files.keys()].sort()},
+  read(p){const f=S.files.get(p);return f?f.content:null},
+  write(p,content){
+    const existed=S.files.has(p);
+    S.files.set(p,{content});
+    if(Editor.models.has(p)){const m=Editor.models.get(p); if(m.getValue()!==content) m.setValue(content);}
+    Store.emit("files"); return existed?"updated":"created";
+  },
+  remove(p){
+    S.files.delete(p);
+    if(Editor.models.has(p)){Editor.models.get(p).dispose();Editor.models.delete(p)}
+    S.tabs=S.tabs.filter(t=>t!==p);
+    if(S.active===p)S.active=S.tabs[0]||null;
+    Store.emit("files");Store.emit("tabs");
+  },
+  seed(){
+    FS.write("README.md",
+`# demo-project — Puter Studio X
+
+This workspace lives in memory (local-first). Sign in to Puter and hit ☁ Sync
+to persist it to your Puter cloud (KV store) and pull it back on any machine.
+
+Try asking the agent (tools ON):
+- "Add input validation to api.js and stage the change"
+- "Read all files and write ARCHITECTURE.md describing this app"
+- "Find the bug in utils.js"
+`);
+    FS.write("src/index.html",
+`<!DOCTYPE html>
+<html>
+  <head><title>Demo App</title><link rel="stylesheet" href="style.css"></head>
+  <body>
+    <h1>Demo App</h1>
+    <div id="out"></div>
+    <script src="utils.js"><\/script>
+    <script src="api.js"><\/script>
+  </body>
+</html>`);
+    FS.write("src/api.js",
+`// naive fetch wrapper — the agent can harden this
+async function getUser(id) {
+  const res = await fetch("/api/users/" + id);
+  const data = await res.json();
+  return data;
+}
+
+async function saveUser(user) {
+  return fetch("/api/users", {
+    method: "POST",
+    body: JSON.stringify(user)
+  });
+}`);
+    FS.write("src/utils.js",
+`// utility helpers (one of these has a subtle bug)
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(args), ms); // bug: spreads lost
+  };
+}
+
+function formatBytes(b) {
+  const u = ["B","KB","MB","GB"];
+  let i = 0;
+  while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+  return b.toFixed(1) + " " + u[i];
+}`);
+    FS.write("src/style.css",
+`:root { --accent: #e09a3e; }
+body { font-family: sans-serif; background:#111; color:#eee; }
+h1 { color: var(--accent); }`);
+  }
+};
+
+/* ─────────────────────── PUTER SERVICE ─────────────────────── */
+const Puter = {
+  FALLBACK_MODELS:["gpt-5-nano","gpt-5.1","gpt-4o-mini","claude-sonnet-4","claude-opus-4","deepseek-chat","gemini-2.0-flash","mistral-large-latest","grok-3-mini","gemini-2.5-flash-image"],
+  async init(){
+    if(typeof puter==="undefined"){ $("#nopt-banner").style.display="block"; Log.add("err","Puter SDK unavailable in this environment."); return; }
+    S.puterOk=true;
+    try{
+      if(puter.auth && await puter.auth.isSignedIn()){
+        S.user=await puter.auth.getUser(); this.refreshUsage();
+      }
+    }catch(e){Log.add("err","auth check: "+e.message)}
+    Store.emit("auth");
+    await this.discoverModels();
+  },
+  async signIn(){
+    try{ await puter.auth.signIn(); S.user=await puter.auth.getUser();
+      Store.emit("auth"); toast("Signed in as "+S.user.username,"ok"); this.refreshUsage();
+    }catch(e){toast("Sign-in cancelled","err")}
+  },
+  async signOut(){ try{await puter.auth.signOut()}catch(e){} S.user=null; Store.emit("auth"); },
+  async refreshUsage(){
+    try{ const u=await puter.auth.getMonthlyUsage();
+      if(u&&typeof u==="object"){ const used=u.used??u.total??null;
+        if(used!=null)$("#st-usage").textContent="usage: "+used; }
+    }catch(e){}
+  },
+  async discoverModels(){
+    let models=[];
+    try{
+      const r=await puter.ai.listModels();
+      if(Array.isArray(r)) models=r.map(m=>typeof m==="string"?m:(m.id||m.model||m.name)).filter(Boolean);
+      else if(r&&typeof r==="object"){
+        for(const[prov,arr]of Object.entries(r)){
+          if(Array.isArray(arr)) arr.forEach(m=>{const id=typeof m==="string"?m:(m.id||m.name);if(id)models.push(id.includes("/")?id:prov+"/"+id)});
+        }
+      }
+    }catch(e){Log.add("err","listModels failed: "+e.message)}
+    if(!models.length){models=this.FALLBACK_MODELS;Log.add("info","Using fallback model list ("+models.length+")")}
+    else Log.add("ok","Discovered "+models.length+" models via puter.ai.listModels()");
+    S.models=[...new Set(models)];
+    if(!S.models.includes(S.model))S.model=S.models[0];
+    Store.emit("models");
+  },
+  badge(id){
+    const l=id.toLowerCase();
+    if(l.includes("image")||l.includes("dall"))return"🖼";
+    if(l.includes("claude")||l.includes("opus")||l.includes("sonnet"))return"◆";
+    if(l.includes("gpt")||l.includes("o3")||l.includes("o4"))return"●";
+    if(l.includes("gemini"))return"✦";
+    if(l.includes("deepseek"))return"◇";
+    if(l.includes("grok"))return"✕";
+    return"·";
+  },
+  async chat(messages,opts){ return puter.ai.chat(messages,Object.assign({model:S.model},opts)); },
+  async syncSave(){
+    if(!S.user){toast("Sign in first to sync","err");return}
+    const payload=JSON.stringify({v:1,files:[...S.files.entries()].map(([p,f])=>[p,f.content]),favs:[...S.favorites],model:S.model});
+    try{ await puter.kv.set("psx_workspace",payload); toast("Workspace synced to Puter cloud","ok"); Log.add("ok","Workspace saved to puter.kv ("+payload.length+" bytes)"); }
+    catch(e){toast("Sync failed: "+e.message,"err")}
+  },
+  async syncLoad(){
+    if(!S.user)return;
+    try{
+      const raw=await puter.kv.get("psx_workspace");
+      if(!raw)return;
+      const data=typeof raw==="string"?JSON.parse(raw):raw;
+      if(data&&data.files){
+        S.files.clear(); data.files.forEach(([p,c])=>S.files.set(p,{content:c}));
+        if(data.favs)S.favorites=new Set(data.favs);
+        if(data.model)S.model=data.model;
+        S.tabs=[];S.active=null;
+        Store.emit("files");Store.emit("tabs");Store.emit("models");
+        toast("Workspace restored from Puter cloud","ok");
+      }
+    }catch(e){Log.add("err","cloud load: "+e.message)}
+  }
+};
+
+/* ─────────────────────── AGENT RUNTIME ─────────────────────── */
+const AGENTS = {
+  pair:{em:"🤝",name:"Pair Programmer",tag:"default · edits code",
+    desc:"Generalist coding partner. Reads your workspace, proposes staged edits, explains as it goes.",
+    sys:"You are the Pair Programmer agent inside Puter Studio X, an AI-native IDE. Be concise and pragmatic. Prefer small, surgical edits. When changing code, use the write_file tool — never paste whole files into chat when a tool call will do. Always read a file before editing it."},
+  architect:{em:"🏛",name:"Architect",tag:"design · planning",
+    desc:"Analyzes the codebase, produces designs, module boundaries, and migration plans before any code is written.",
+    sys:"You are the Architect agent. First inventory the workspace with list_files/read_file, then produce clear architectural analysis: module boundaries, data flow, risks, and a stepwise plan. Only write files when asked to produce design docs (e.g. ARCHITECTURE.md)."},
+  debugger:{em:"🔬",name:"Debugger",tag:"diagnosis · fixes",
+    desc:"Hunts down bugs methodically: reproduce, hypothesize, verify against the source, then stage a minimal fix.",
+    sys:"You are the Debug agent. Work like a methodical engineer: read the relevant files, state hypotheses explicitly, identify the root cause with line references, then stage the smallest possible fix via write_file."},
+  refactor:{em:"♻️",name:"Refactorer",tag:"cleanup · structure",
+    desc:"Improves structure without changing behavior. Names, duplication, dead code, cohesion.",
+    sys:"You are the Refactor agent. Improve structure and readability WITHOUT changing behavior. Read files fully before editing. Explain each refactor's rationale in one line. Stage edits via write_file."},
+  security:{em:"🛡",name:"Security Auditor",tag:"audit · hardening",
+    desc:"Reviews for injection, unsafe parsing, missing validation, secrets, and stages hardening patches.",
+    sys:"You are the Security agent. Audit the workspace for vulnerabilities: injection, unvalidated input, unsafe eval/HTML, missing error handling, leaked secrets. Report severity-ranked findings with file:line references, then offer to stage fixes via write_file."},
+  docs:{em:"📜",name:"Documentarian",tag:"docs · explainers",
+    desc:"Generates READMEs, inline docs, and architecture explainers grounded in the actual source.",
+    sys:"You are the Documentation agent. Ground every claim in the actual source — read files first. Produce crisp, accurate docs. Write doc files (e.g. README.md, docs/*.md) via write_file."}
+};
+
+const TOOLS = [
+  {type:"function",function:{name:"list_files",description:"List every file path in the current workspace.",parameters:{type:"object",properties:{},required:[]}}},
+  {type:"function",function:{name:"read_file",description:"Read the full content of a workspace file.",parameters:{type:"object",properties:{path:{type:"string",description:"Workspace file path, e.g. src/api.js"}},required:["path"]}}},
+  {type:"function",function:{name:"write_file",description:"Create or modify a file. The change is STAGED for human review (a diff the user must approve) — it does not apply immediately. Provide the complete new file content.",parameters:{type:"object",properties:{path:{type:"string"},content:{type:"string",description:"Complete new file content"},note:{type:"string",description:"One-line summary of the change"}},required:["path","content"]}}},
+  {type:"function",function:{name:"delete_file",description:"Delete a file from the workspace (applies immediately; use sparingly).",parameters:{type:"object",properties:{path:{type:"string"}},required:["path"]}}},
+  {type:"function",function:{name:"search_workspace",description:"Search all files for a string; returns matching lines with file paths.",parameters:{type:"object",properties:{query:{type:"string"}},required:["query"]}}}
+];
+
+const Agent = {
+  execTool(name,args){
+    switch(name){
+      case"list_files": return JSON.stringify(FS.list());
+      case"read_file":{ const c=FS.read(args.path); return c==null?"ERROR: file not found: "+args.path:c; }
+      case"write_file":{
+        const old=FS.read(args.path)||"";
+        if(old===args.content)return"No change — content identical.";
+        S.pending.push({id:Date.now()+Math.random(),path:args.path,oldContent:old,newContent:args.content,note:args.note||""});
+        Store.emit("pending");
+        return"Staged for human review: "+args.path+(args.note?" — "+args.note:"")+". Tell the user to review via the status bar.";
+      }
+      case"delete_file":{ if(FS.read(args.path)==null)return"ERROR: not found"; FS.remove(args.path); return"Deleted "+args.path; }
+      case"search_workspace":{
+        const out=[];const q=(args.query||"").toLowerCase();
+        for(const p of FS.list()){FS.read(p).split("\n").forEach((l,i)=>{if(l.toLowerCase().includes(q))out.push(p+":"+(i+1)+": "+l.trim())})}
+        return out.length?out.slice(0,60).join("\n"):"No matches.";
+      }
+    }
+    return"ERROR: unknown tool "+name;
+  },
+  context(){
+    let ctx="WORKSPACE FILES:\n"+FS.list().join("\n");
+    if(S.pins.size){
+      ctx+="\n\nPINNED FILES (full content):";
+      for(const p of S.pins) ctx+="\n\n--- "+p+" ---\n"+FS.read(p);
+    }
+    if(S.active) ctx+="\n\nACTIVE FILE IN EDITOR: "+S.active;
+    return ctx;
+  },
+  textOf(message){
+    const c=message&&message.content;
+    if(typeof c==="string")return c;
+    if(Array.isArray(c))return c.map(x=>x&&(x.text||"")).join("");
+    return"";
+  },
+  async run(chat,userText){
+    const a=AGENTS[S.agent];
+    const msgs=[{role:"system",content:a.sys+"\n\n"+this.context()},
+      ...chat.messages.filter(m=>m.role==="user"||m.role==="assistant").map(m=>({role:m.role,content:m.text})),
+      {role:"user",content:userText}];
+
+    /* image generation shortcut */
+    if(/^\/img\s+/i.test(userText)){
+      UI.thinking("painting…");
+      try{
+        const r=await Puter.chat([{role:"user",content:userText.replace(/^\/img\s+/i,"")}],{model:"gemini-2.5-flash-image"});
+        const img=r&&r.message&&r.message.images&&r.message.images[0];
+        const url=img&&img.image_url&&img.image_url.url;
+        chat.messages.push({role:"assistant",text:this.textOf(r.message)||"Here you go.",image:url});
+      }catch(e){chat.messages.push({role:"assistant",text:"Image generation failed: "+e.message})}
+      return;
+    }
+
+    if(!S.toolsOn){ /* pure streaming chat */
+      UI.thinking("streaming "+S.model+"…");
+      const m={role:"assistant",text:""}; chat.messages.push(m); Store.emit("chat");
+      try{
+        const resp=await Puter.chat(msgs,{stream:true});
+        for await(const part of resp){ if(part&&part.text){m.text+=part.text; Store.emit("chat-stream");} }
+      }catch(e){m.text+="\n\n⚠ "+e.message}
+      return;
+    }
+
+    /* agentic tool loop */
+    let loop=0;
+    while(loop++<8){
+      UI.thinking(loop===1?"reasoning with "+S.model+"…":"step "+loop+" — using tools…");
+      let resp;
+      try{ resp=await Puter.chat(msgs,{tools:TOOLS}); }
+      catch(e){ chat.messages.push({role:"assistant",text:"⚠ Model error: "+e.message}); return; }
+      const message=resp&&resp.message?resp.message:resp;
+      const calls=message&&message.tool_calls;
+      if(calls&&calls.length){
+        msgs.push({role:"assistant",content:this.textOf(message)||"",tool_calls:calls});
+        for(const tc of calls){
+          let args={}; try{args=JSON.parse(tc.function.arguments||"{}")}catch(e){}
+          const label=tc.function.name+"("+(args.path||args.query||"")+")";
+          chat.messages.push({role:"tool-ui",text:label}); Store.emit("chat");
+          Log.add("tool",label);
+          const result=this.execTool(tc.function.name,args);
+          msgs.push({role:"tool",tool_call_id:tc.id,content:String(result)});
+        }
+        continue;
+      }
+      const text=this.textOf(message);
+      chat.messages.push({role:"assistant",text:text||"(no response)"});
+      return;
+    }
+    chat.messages.push({role:"assistant",text:"⚠ Stopped after 8 tool iterations."});
+  }
+};
+
+/* ─────────────────────── EDITOR (Monaco) ─────────────────────── */
+const Editor = {
+  ed:null, diff:null, models:new Map(), ready:false,
+  init(cb){
+    require.config({paths:{vs:"https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs"}});
+    window.MonacoEnvironment={getWorkerUrl:()=>URL.createObjectURL(new Blob([
+      `self.MonacoEnvironment={baseUrl:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/'};importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/base/worker/workerMain.js');`
+    ],{type:"text/javascript"}))};
+    require(["vs/editor/editor.main"],()=>{
+      monaco.editor.defineTheme("psx",{base:"vs-dark",inherit:true,
+        rules:[{token:"comment",foreground:"6f675c",fontStyle:"italic"},{token:"string",foreground:"c9a36a"},
+          {token:"keyword",foreground:"e09a3e"},{token:"number",foreground:"7fb069"},{token:"type",foreground:"6ea8c9"}],
+        colors:{"editor.background":"#0c0b09","editor.lineHighlightBackground":"#15131177","editorLineNumber.foreground":"#4a443c",
+          "editorCursor.foreground":"#e09a3e","editor.selectionBackground":"#e09a3e33","editorIndentGuide.background":"#1e1c19"}});
+      this.ed=monaco.editor.create($("#editor"),{theme:"psx",fontFamily:"'JetBrains Mono',monospace",fontSize:13,
+        minimap:{enabled:true,scale:1},smoothScrolling:true,cursorBlinking:"phase",padding:{top:14},
+        automaticLayout:true,renderLineHighlight:"all",fontLigatures:true,scrollBeyondLastLine:false});
+      this.ed.onDidChangeModelContent(()=>{
+        if(!S.active)return;
+        const f=S.files.get(S.active);
+        if(f){f.content=this.ed.getValue(); S.dirty.add(S.active); Store.emit("dirty");}
+      });
+      this.ready=true; cb&&cb();
+    });
+  },
+  model(p){
+    if(!this.models.has(p)){
+      this.models.set(p,monaco.editor.createModel(FS.read(p)||"",FS.langOf(p),monaco.Uri.parse("psx:///"+p)));
+    }
+    return this.models.get(p);
+  },
+  open(p){
+    if(!S.files.has(p))return;
+    if(!S.tabs.includes(p))S.tabs.push(p);
+    S.active=p; Store.emit("tabs");
+    if(this.ready){ $("#welcome").style.display="none"; this.ed.setModel(this.model(p)); this.ed.focus(); }
+    $("#st-file").textContent=p+" · "+FS.langOf(p);
+  },
+  closeTab(p){
+    S.tabs=S.tabs.filter(t=>t!==p);
+    if(S.active===p){S.active=S.tabs[S.tabs.length-1]||null;
+      if(S.active)this.open(S.active);
+      else{$("#welcome").style.display="flex";if(this.ed)this.ed.setModel(null);$("#st-file").textContent="—"}}
+    Store.emit("tabs");
+  },
+  openDiff(item){
+    const orig=monaco.editor.createModel(item.oldContent,FS.langOf(item.path));
+    const mod=monaco.editor.createModel(item.newContent,FS.langOf(item.path));
+    if(!this.diff){
+      this.diff=monaco.editor.createDiffEditor($("#diff-editor"),{theme:"psx",fontFamily:"'JetBrains Mono',monospace",
+        fontSize:12.5,automaticLayout:true,renderSideBySide:true,readOnly:true});
+    }
+    const old=this.diff.getModel();
+    this.diff.setModel({original:orig,modified:mod});
+    if(old){old.original.dispose();old.modified.dispose();}
+  }
+};
+
+/* ─────────────────────────── UI ─────────────────────────── */
+const UI = {
+  thinking(txt){
+    const z=$("#thinking");
+    if(txt){z.classList.add("on");$("#thinking-text").textContent=txt}
+    else z.classList.remove("on");
+  },
+  renderTree(){
+    const tree=$("#file-tree"); tree.innerHTML="";
+    const dirs={};
+    FS.list().forEach(p=>{const d=p.includes("/")?p.slice(0,p.lastIndexOf("/")):"";(dirs[d]=dirs[d]||[]).push(p)});
+    Object.keys(dirs).sort().forEach(d=>{
+      if(d)tree.appendChild(el("div","tree-dir",esc(d)+"/"));
+      dirs[d].forEach(p=>{
+        const name=p.split("/").pop();
+        const row=el("div","tree-item"+(p===S.active?" active":"")+(S.dirty.has(p)?" dirty":""),
+          `<span>${esc(name)}</span><span class="ext">${esc(FS.langOf(p))}</span>`);
+        row.onclick=()=>Editor.open(p);
+        row.oncontextmenu=e=>{e.preventDefault();
+          if(confirm("Delete "+p+"?")){FS.remove(p);toast("Deleted "+p)}};
+        tree.appendChild(row);
+      });
+    });
+  },
+  renderTabs(){
+    const tabs=$("#tabs"); tabs.innerHTML="";
+    S.tabs.forEach(p=>{
+      const t=el("div","tab"+(p===S.active?" active":""),
+        `${S.dirty.has(p)?'<span class="d">●</span>':''}<span>${esc(p.split("/").pop())}</span><span class="x">×</span>`);
+      t.onclick=e=>{if(e.target.classList.contains("x")){Editor.closeTab(p)}else Editor.open(p)};
+      tabs.appendChild(t);
+    });
+    this.renderTree();
+  },
+  renderModels(){
+    const sel=$("#model-select"); sel.innerHTML="";
+    const favs=S.models.filter(m=>S.favorites.has(m));
+    const rest=S.models.filter(m=>!S.favorites.has(m));
+    const add=(arr,label)=>{
+      if(!arr.length)return;
+      const g=document.createElement("optgroup");g.label=label;
+      arr.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=Puter.badge(m)+" "+m;g.appendChild(o)});
+      sel.appendChild(g);
+    };
+    add(favs,"★ favorites"); add(rest,"all models ("+rest.length+")");
+    sel.value=S.model;
+    $("#st-model").textContent="model: "+S.model;
+    $("#fav-btn").classList.toggle("faved",S.favorites.has(S.model));
+  },
+  renderAgents(){
+    const list=$("#agent-list"); list.innerHTML="";
+    Object.entries(AGENTS).forEach(([k,a])=>{
+      const c=el("div","agent-card"+(k===S.agent?" active":""),
+        `<h4><span class="em">${a.em}</span>${a.name}</h4><p>${a.desc}</p><span class="tag">${a.tag}</span>`);
+      c.onclick=()=>{S.agent=k;$("#agent-chip").textContent=a.name.toLowerCase();this.renderAgents();
+        toast(a.em+" "+a.name+" engaged")};
+      list.appendChild(c);
+    });
+  },
+  renderPins(){
+    const z=$("#pins"); z.innerHTML="";
+    S.pins.forEach(p=>{
+      const c=el("span","pin",`📌 ${esc(p)} <b>×</b>`);
+      c.querySelector("b").onclick=()=>{S.pins.delete(p);this.renderPins()};
+      z.appendChild(c);
+    });
+  },
+  mdLite(t){
+    let h=esc(t);
+    h=h.replace(/```(\w*)\n([\s\S]*?)```/g,(_,l,c)=>`<pre>${c}</pre>`);
+    h=h.replace(/`([^`\n]+)`/g,"<code>$1</code>");
+    h=h.replace(/^### (.*)$/gm,"<b style='font-size:13.5px'>$1</b>");
+    h=h.replace(/^## (.*)$/gm,"<b style='font-size:14px'>$1</b>");
+    h=h.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+    return h;
+  },
+  renderChat(){
+    const chat=S.chats.find(c=>c.id===S.chatId); if(!chat)return;
+    const z=$("#msgs"); z.innerHTML="";
+    chat.messages.forEach(m=>{
+      if(m.role==="tool-ui"){z.appendChild(el("div","tool-line","⚙ "+esc(m.text)));return}
+      const d=el("div","msg "+(m.role==="user"?"user":"ai"));
+      const who=m.role==="user"?(S.user?S.user.username:"you"):AGENTS[S.agent].em+" "+AGENTS[S.agent].name+" · "+S.model;
+      d.appendChild(el("div","who",esc(who)));
+      const body=el("div","body");body.innerHTML=this.mdLite(m.text||"");
+      if(m.image){const img=document.createElement("img");img.src=m.image;body.appendChild(img)}
+      d.appendChild(body); z.appendChild(d);
+    });
+    z.scrollTop=1e9;
+    /* chat tabs */
+    const ct=$("#chat-tabs"); ct.innerHTML="";
+    S.chats.forEach(c=>{
+      const t=el("button","chat-tab"+(c.id===S.chatId?" active":""),esc(c.title));
+      t.onclick=()=>{S.chatId=c.id;this.renderChat()};
+      ct.appendChild(t);
+    });
+  },
+  renderPending(){
+    const n=S.pending.length;
+    $("#pending-count").textContent=n;
+    $("#pending-badge").classList.toggle("on",n>0);
+  }
+};
+
+/* ─────────────── DIFF REVIEW CONTROLLER ─────────────── */
+const Review = {
+  idx:0,
+  open(){
+    if(!S.pending.length){toast("No staged edits");return}
+    this.idx=Math.min(this.idx,S.pending.length-1);
+    $("#review").classList.add("open");
+    this.show();
+  },
+  show(){
+    const it=S.pending[this.idx]; if(!it){this.close();return}
+    $("#review-path").textContent=it.path+(it.note?"  —  "+it.note:"");
+    $("#review-nav").textContent=(this.idx+1)+" / "+S.pending.length;
+    Editor.openDiff(it);
+  },
+  apply(){
+    const it=S.pending[this.idx]; if(!it)return;
+    FS.write(it.path,it.newContent);
+    S.pending.splice(this.idx,1); Store.emit("pending");
+    Log.add("ok","Applied AI edit → "+it.path);
+    toast("Applied "+it.path,"ok");
+    if(!S.pending.length)this.close(); else{this.idx=Math.min(this.idx,S.pending.length-1);this.show()}
+  },
+  reject(){
+    const it=S.pending[this.idx]; if(!it)return;
+    S.pending.splice(this.idx,1); Store.emit("pending");
+    Log.add("info","Rejected AI edit for "+it.path);
+    if(!S.pending.length)this.close(); else{this.idx=Math.min(this.idx,S.pending.length-1);this.show()}
+  },
+  close(){$("#review").classList.remove("open")}
+};
+
+/* ─────────────── COMMAND PALETTE ─────────────── */
+const Palette = {
+  sel:0, items:[],
+  commands(){
+    const cmds=[
+      {cat:"file",label:"New file…",run:()=>UIActions.newFile()},
+      {cat:"ai",label:"New chat session",run:()=>UIActions.newChat()},
+      {cat:"ai",label:"Toggle agent tools",run:()=>$("#tools-switch").click()},
+      {cat:"ai",label:"Review staged AI edits",run:()=>Review.open()},
+      {cat:"ai",label:"Re-discover models",run:()=>Puter.discoverModels()},
+      {cat:"cloud",label:"Sync workspace → Puter cloud",run:()=>Puter.syncSave()},
+      {cat:"cloud",label:"Load workspace ← Puter cloud",run:()=>Puter.syncLoad()},
+      {cat:"view",label:"Toggle logs panel",run:()=>$("#bottom").classList.toggle("open")},
+      {cat:"view",label:"Toggle AI panel",run:()=>$("#ai").classList.toggle("hidden")},
+    ];
+    Object.entries(AGENTS).forEach(([k,a])=>cmds.push({cat:"agent",label:"Switch agent → "+a.name,run:()=>{S.agent=k;$("#agent-chip").textContent=a.name.toLowerCase();UI.renderAgents()}}));
+    FS.list().forEach(p=>cmds.push({cat:"open",label:p,run:()=>Editor.open(p)}));
+    return cmds;
+  },
+  open(){
+    $("#palette").classList.add("open");
+    const inp=$("#palette-input"); inp.value=""; inp.focus();
+    this.filter("");
+  },
+  close(){$("#palette").classList.remove("open")},
+  filter(q){
+    q=q.toLowerCase();
+    this.items=this.commands().filter(c=>c.label.toLowerCase().includes(q)).slice(0,14);
+    this.sel=0; this.render();
+  },
+  render(){
+    const list=$("#palette-list"); list.innerHTML="";
+    this.items.forEach((c,i)=>{
+      const d=el("div","pal-item"+(i===this.sel?" sel":""),
+        `<span class="cat">${c.cat}</span><span>${esc(c.label)}</span>${i===this.sel?'<span class="k">↵</span>':''}`);
+      d.onclick=()=>{c.run();this.close()};
+      list.appendChild(d);
+    });
+  }
+};
+
+/* ─────────────── ACTIONS / WIRING ─────────────── */
+const UIActions = {
+  newFile(){
+    const p=prompt("New file path (e.g. src/feature.js):"); if(!p)return;
+    if(S.files.has(p)){toast("File exists","err");return}
+    FS.write(p,""); Editor.open(p);
+  },
+  newChat(){
+    const id=Date.now();
+    S.chats.push({id,title:"chat "+(S.chats.length+1),messages:[]});
+    S.chatId=id; UI.renderChat();
+  },
+  async send(){
+    if(S.busy)return;
+    const ta=$("#prompt"); const text=ta.value.trim(); if(!text)return;
+    if(!S.puterOk){toast("Puter SDK not loaded — open this file directly in a browser","err");return}
+    ta.value="";
+    const chat=S.chats.find(c=>c.id===S.chatId);
+    chat.messages.push({role:"user",text}); UI.renderChat();
+    if(chat.messages.length===1)chat.title=text.slice(0,18)+(text.length>18?"…":"");
+    S.busy=true; $("#send-btn").disabled=true;
+    try{ await Agent.run(chat,text); }
+    catch(e){ chat.messages.push({role:"assistant",text:"⚠ "+e.message}); Log.add("err",e.message); }
+    S.busy=false; $("#send-btn").disabled=false;
+    UI.thinking(null); UI.renderChat();
+  }
+};
+
+function wire(){
+  /* rail views */
+  document.querySelectorAll(".rail-btn[data-view]").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll(".rail-btn[data-view]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    const v=b.dataset.view;
+    $("#explorer-pane").style.display=v==="explorer"?"flex":"none";
+    $("#search-pane").style.display=v==="search"?"flex":"none";
+    $("#agents-pane").style.display=v==="agents"?"flex":"none";
+    if(v==="search")$("#search-input").focus();
+  });
+  $("#toggle-bottom").onclick=()=>$("#bottom").classList.toggle("open");
+  $("#toggle-ai").onclick=()=>$("#ai").classList.toggle("hidden");
+  $("#clear-logs").onclick=()=>$("#log-body").innerHTML="";
+
+  /* auth */
+  $("#auth-btn").onclick=()=>S.user?Puter.signOut():Puter.signIn();
+  $("#sync-btn").onclick=()=>Puter.syncSave();
+  Store.on("auth",()=>{
+    $("#auth-dot").classList.toggle("on",!!S.user);
+    $("#auth-name").textContent=S.user?S.user.username:"guest";
+    $("#auth-btn").textContent=S.user?"Sign out":"Sign in to Puter";
+    if(S.user)Puter.syncLoad();
+  });
+
+  /* models */
+  Store.on("models",()=>UI.renderModels());
+  $("#model-select").onchange=e=>{S.model=e.target.value;UI.renderModels()};
+  $("#fav-btn").onclick=()=>{S.favorites.has(S.model)?S.favorites.delete(S.model):S.favorites.add(S.model);UI.renderModels()};
+  $("#refresh-models").onclick=()=>Puter.discoverModels();
+
+  /* files */
+  Store.on("files",()=>UI.renderTree());
+  Store.on("tabs",()=>UI.renderTabs());
+  Store.on("dirty",()=>UI.renderTabs());
+  $("#new-file-btn").onclick=()=>UIActions.newFile();
+
+  /* search */
+  $("#search-input").oninput=e=>{
+    const q=e.target.value.toLowerCase(); const z=$("#search-results"); z.innerHTML="";
+    if(q.length<2)return;
+    for(const p of FS.list()){
+      FS.read(p).split("\n").forEach((l,i)=>{
+        if(l.toLowerCase().includes(q)&&z.children.length<80){
+          const r=el("div","sr",`<span class="p">${esc(p)}:${i+1}</span><span class="l">${esc(l.trim().slice(0,90))}</span>`);
+          r.onclick=()=>{Editor.open(p);Editor.ed&&Editor.ed.revealLineInCenter(i+1)};
+          z.appendChild(r);
+        }
+      });
+    }
+  };
+
+  /* chat */
+  Store.on("chat",()=>UI.renderChat());
+  Store.on("chat-stream",()=>{ /* lightweight stream repaint */
+    const chat=S.chats.find(c=>c.id===S.chatId);
+    const z=$("#msgs"); const last=z.lastElementChild;
+    const m=chat.messages[chat.messages.length-1];
+    if(last&&last.classList.contains("ai")&&m){last.querySelector(".body").innerHTML=UI.mdLite(m.text);z.scrollTop=1e9}
+    else UI.renderChat();
+  });
+  Store.on("pending",()=>UI.renderPending());
+  $("#send-btn").onclick=()=>UIActions.send();
+  $("#prompt").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();UIActions.send()}};
+  $("#new-chat-btn").onclick=()=>UIActions.newChat();
+  $("#tools-switch").onclick=function(){S.toolsOn=!S.toolsOn;this.classList.toggle("on",S.toolsOn);
+    toast(S.toolsOn?"Agent tools ON — it can read & stage edits":"Tools OFF — pure streaming chat")};
+  $("#pin-active").onclick=()=>{if(!S.active){toast("Open a file first","err");return}S.pins.add(S.active);UI.renderPins();toast("Pinned "+S.active)};
+  $("#agent-chip").onclick=()=>{document.querySelector('[data-view="agents"]').click()};
+
+  /* review */
+  $("#pending-badge").onclick=()=>Review.open();
+  $("#review-apply").onclick=()=>Review.apply();
+  $("#review-reject").onclick=()=>Review.reject();
+  $("#review-close").onclick=()=>Review.close();
+
+  /* palette */
+  $("#cmdk-btn").onclick=()=>Palette.open();
+  $("#palette").onclick=e=>{if(e.target.id==="palette")Palette.close()};
+  $("#palette-input").oninput=e=>Palette.filter(e.target.value);
+  document.addEventListener("keydown",e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();Palette.open()}
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="p"){e.preventDefault();
+      if(S.active){S.pins.add(S.active);UI.renderPins();toast("Pinned "+S.active)}}
+    if(e.key==="Escape"){Palette.close();Review.close()}
+    if($("#palette").classList.contains("open")){
+      if(e.key==="ArrowDown"){e.preventDefault();Palette.sel=Math.min(Palette.sel+1,Palette.items.length-1);Palette.render()}
+      if(e.key==="ArrowUp"){e.preventDefault();Palette.sel=Math.max(Palette.sel-1,0);Palette.render()}
+      if(e.key==="Enter"){const c=Palette.items[Palette.sel];if(c){c.run();Palette.close()}}
+    }
+  });
+}
+
+/* ─────────────── BOOT ─────────────── */
+function boot(){
+  FS.seed();
+  UIActions.newChat();
+  UI.renderTree(); UI.renderAgents(); UI.renderPending(); UI.renderModels();
+  wire();
+  Log.add("info","Puter Studio X kernel online.");
+  Editor.init(()=>{Log.add("ok","Monaco editor ready."); Editor.open("README.md");});
+  Puter.init();
+}
+boot();
+})();
+</script>
+</body>
+</html>
