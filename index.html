@@ -228,6 +228,10 @@ kbd{font-family:var(--mono);font-size:10px;background:var(--bg-3);border:1px sol
 .toast{background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;padding:10px 14px;font-size:12px;max-width:320px;animation:rise .25s ease;box-shadow:0 12px 30px rgba(0,0,0,.5)}
 .toast.err{border-left-color:var(--err)} .toast.ok{border-left-color:var(--ok)}
 #nopt-banner{display:none;background:linear-gradient(90deg,rgba(217,100,74,.18),transparent);border-bottom:1px solid rgba(217,100,74,.4);padding:7px 14px;font-size:11.5px;font-family:var(--mono);color:#e8a08e}
+.new-dropdown{position:absolute;top:100%;right:0;z-index:500;min-width:170px;background:var(--bg-2);border:1px solid var(--line);border-radius:9px;padding:4px;box-shadow:0 12px 30px rgba(0,0,0,.5);display:none}
+.new-dropdown.open{display:block}
+.new-dropdown button{display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;border-radius:6px;font-size:12px;color:var(--txt-1);text-align:left;transition:.1s}
+.new-dropdown button:hover{background:var(--bg-3);color:var(--txt-0)}
 </style>
 </head>
 <body>
@@ -267,7 +271,15 @@ kbd{font-family:var(--mono);font-size:10px;background:var(--bg-3);border:1px sol
     <div id="explorer-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
       <div class="panel-head">Explorer
         <div class="acts">
-          <button class="icon-btn" id="new-file-btn" title="New file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div style="position:relative">
+            <button class="icon-btn" id="new-file-btn" title="New…"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+            <div class="new-dropdown" id="new-dropdown">
+              <button data-action="file">📄 New File</button>
+              <button data-action="folder">📁 New Folder</button>
+              <button data-action="import">📥 Import Files</button>
+            </div>
+          </div>
+          <input type="file" id="import-input" multiple style="display:none">
         </div>
       </div>
       <div id="file-tree"></div>
@@ -395,6 +407,7 @@ const Store = {
     puterOk:false, user:null,
     models:[], favorites:new Set(), model:"gpt-5-nano",
     files:new Map(),            // path -> {content}
+    dirs:new Set(),             // empty directories
     tabs:[], active:null, dirty:new Set(),
     chats:[], chatId:null,
     pins:new Set(),
@@ -565,7 +578,7 @@ const Puter = {
   async chat(messages,opts){ return puter.ai.chat(messages,Object.assign({model:S.model},opts)); },
   async syncSave(){
     if(!S.user){toast("Sign in first to sync","err");return}
-    const payload=JSON.stringify({v:1,files:[...S.files.entries()].map(([p,f])=>[p,f.content]),favs:[...S.favorites],model:S.model});
+    const payload=JSON.stringify({v:2,files:[...S.files.entries()].map(([p,f])=>[p,f.content]),dirs:[...S.dirs],favs:[...S.favorites],model:S.model});
     try{ await puter.kv.set("psx_workspace",payload); toast("Workspace synced to Puter cloud","ok"); Log.add("ok","Workspace saved to puter.kv ("+payload.length+" bytes)"); }
     catch(e){toast("Sync failed: "+e.message,"err")}
   },
@@ -577,6 +590,7 @@ const Puter = {
       const data=typeof raw==="string"?JSON.parse(raw):raw;
       if(data&&data.files){
         S.files.clear(); data.files.forEach(([p,c])=>S.files.set(p,{content:c}));
+        if(data.dirs)S.dirs=new Set(data.dirs);
         if(data.favs)S.favorites=new Set(data.favs);
         if(data.model)S.model=data.model;
         S.tabs=[];S.active=null;
@@ -779,6 +793,7 @@ const UI = {
     const tree=$("#file-tree"); tree.innerHTML="";
     const dirs={};
     FS.list().forEach(p=>{const d=p.includes("/")?p.slice(0,p.lastIndexOf("/")):"";(dirs[d]=dirs[d]||[]).push(p)});
+    S.dirs.forEach(d=>{const parts=d.replace(/\/+$/,"").split("/");let cur="";parts.forEach((part,i)=>{const p=i<parts.length-1?cur+part+"/":d.replace(/\/+$/,"");cur+=part+"/";if(!(p in dirs))dirs[p]=[]})});
     Object.keys(dirs).sort().forEach(d=>{
       if(d)tree.appendChild(el("div","tree-dir",esc(d)+"/"));
       dirs[d].forEach(p=>{
@@ -952,6 +967,15 @@ const UIActions = {
     if(S.files.has(p)){toast("File exists","err");return}
     FS.write(p,""); Editor.open(p);
   },
+  newFolder(){
+    const name=prompt("Folder name (e.g. components):"); if(!name)return;
+    const path=name.replace(/\/+$/,"")+"/";
+    S.dirs.add(path); Store.emit("files");
+    toast("Folder created: "+path,"ok");
+  },
+  importFiles(){
+    $("#import-input").click();
+  },
   newChat(){
     const id=Date.now();
     S.chats.push({id,title:"chat "+(S.chats.length+1),messages:[]});
@@ -1008,7 +1032,29 @@ function wire(){
   Store.on("files",()=>UI.renderTree());
   Store.on("tabs",()=>UI.renderTabs());
   Store.on("dirty",()=>UI.renderTabs());
-  $("#new-file-btn").onclick=()=>UIActions.newFile();
+  /* new/create dropdown */
+  const dd=$("#new-dropdown");
+  $("#new-file-btn").onclick=e=>{e.stopPropagation();dd.classList.toggle("open")};
+  dd.querySelectorAll("button").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();dd.classList.remove("open");
+    const act=b.dataset.action;
+    if(act==="file")UIActions.newFile();
+    else if(act==="folder")UIActions.newFolder();
+    else if(act==="import")UIActions.importFiles();
+  });
+  document.addEventListener("click",()=>dd.classList.remove("open"));
+
+  /* file import */
+  $("#import-input").onchange=async function(){
+    for(const f of this.files){
+      if(!f.name)continue;
+      const path=f.webkitRelativePath||f.name;
+      const text=await f.text();
+      FS.write(path,text);
+    }
+    this.value="";
+    toast("Imported "+this.files.length+" file(s)","ok");
+  };
 
   /* search */
   $("#search-input").oninput=e=>{
