@@ -519,9 +519,14 @@ const Puter = {
     await this.discoverModels();
   },
   async signIn(){
-    try{ await puter.auth.signIn(); S.user=await puter.auth.getUser();
+    try{
+      await puter.auth.signIn({redirectUri: window.location.origin + "/"});
+      S.user = await puter.auth.getUser();
       Store.emit("auth"); toast("Signed in as "+S.user.username,"ok"); this.refreshUsage();
-    }catch(e){toast("Sign-in cancelled","err")}
+    }catch(e){
+      Log.add("err","signIn: "+e.message);
+      toast("Sign-in failed: " + (e.message || "cancelled or popup blocked") + ". Try allowing popups for this site.","err");
+    }
   },
   async signOut(){ try{await puter.auth.signOut()}catch(e){} S.user=null; Store.emit("auth"); },
   async refreshUsage(){
