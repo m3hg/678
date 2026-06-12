@@ -653,12 +653,11 @@ const Agent = {
     return"ERROR: unknown tool "+name;
   },
   context(){
-    let ctx="WORKSPACE FILES:\n"+FS.list().join("\n");
-    if(S.pins.size){
-      ctx+="\n\nPINNED FILES (full content):";
-      for(const p of S.pins) ctx+="\n\n--- "+p+" ---\n"+FS.read(p);
+    let ctx="# FULL WORKSPACE\n\n";
+    for(const p of FS.list()){
+      ctx+="--- "+p+" ---\n"+FS.read(p)+"\n\n";
     }
-    if(S.active) ctx+="\n\nACTIVE FILE IN EDITOR: "+S.active;
+    if(S.dirs.size) ctx+="EMPTY DIRECTORIES: "+[...S.dirs].join(", ")+"\n\n";
     return ctx;
   },
   textOf(message){
